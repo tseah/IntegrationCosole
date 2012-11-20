@@ -8,6 +8,8 @@ class NovoControlValueController {
 
     static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
 	
+	NovoControlValueService novoControlValueService 
+	
 	def scaffold = true
 	
 	def xmlList = {
@@ -45,6 +47,15 @@ class NovoControlValueController {
 		}
 		render jsonMap as JSON
 	}
+	
+	def mycustomJsonList = {
+		
+		HashMap jsonMap = new HashMap()
+		jsonMap.NovoControlValues = NovoControlValue.list().collect { novoControlValue ->
+			return [Bundle_Name: novoControlValue.bundleName, Value_Name: novoControlValue.valueName, Value: novoControlValue.value]
+		}
+		render jsonMap as JSON
+	}
 
     def index() {
         redirect(action: "list", params: params)
@@ -55,7 +66,7 @@ class NovoControlValueController {
         [novoControlValueInstanceList: NovoControlValue.list(params), novoControlValueInstanceTotal: NovoControlValue.count()]
     }
 
-    def create() {
+    def create() {		
         [novoControlValueInstance: new NovoControlValue(params)]
     }
 
@@ -66,15 +77,14 @@ class NovoControlValueController {
             return
         }
 
-        flash.message = message(code: 'default.created.message', args: [message(code: 'novoControlValue.label', default: 'NovoControlValue'), novoControlValueInstance.id])
-        redirect(action: "show", id: novoControlValueInstance.id)
+        flash.message = message(code: 'default.created.message', args: [message(code: 'novoControlValue.label', default: 'NovoControlValue'), params])
+        redirect(action: "show", id: novoControlValueInstance.id, params: [bundleName: params.bundleName, valueName: params.valueName])
     }
 
 	def show() { 	
-
-		println "show + " + params
-		
-		def novoControlValueInstance = NovoControlValue.get(params.bundleName, params.valueName)
+		novoControlValueService = new NovoControlValueService()
+		def novoControlValueInstance = novoControlValueService.showNovoControlValue(params.bundleName, params.valueName)
+				
 		if (!novoControlValueInstance) {
 			flash.message = message(code: 'default.not.found.message', args: [message(code: 'novoControlValue.label', default: 'NovoControlValue'), params])
 			redirect(action: "list")
@@ -87,7 +97,9 @@ class NovoControlValueController {
 	
 
     def edit() {				
-        def novoControlValueInstance = NovoControlValue.get(params.bundleName, params.valueName)
+        novoControlValueService = new NovoControlValueService()
+		def novoControlValueInstance = novoControlValueService.showNovoControlValue(params.bundleName, params.valueName)
+		
         if (!novoControlValueInstance) {
             flash.message = message(code: 'default.not.found.message', args: [message(code: 'novoControlValue.label', default: 'NovoControlValue'), params])
             redirect(action: "list")
@@ -98,7 +110,9 @@ class NovoControlValueController {
     }
 
 	def update() {
-        def novoControlValueInstance = NovoControlValue.get(params.bundleName, params.valueName)
+        novoControlValueService = new NovoControlValueService()
+		def novoControlValueInstance = novoControlValueService.showNovoControlValue(params.bundleName, params.valueName)
+		
         if (!novoControlValueInstance) {
             flash.message = message(code: 'default.not.found.message', args: [message(code: 'novoControlValue.label', default: 'NovoControlValue'), params])
             redirect(action: "list")
@@ -117,7 +131,9 @@ class NovoControlValueController {
     }
 
     def delete(Long id) {
-        def novoControlValueInstance = NovoControlValue.get(params.bundleName, params.valueName)
+        novoControlValueService = new NovoControlValueService()
+		def novoControlValueInstance = novoControlValueService.showNovoControlValue(params.bundleName, params.valueName)
+		
         if (!novoControlValueInstance) {
             flash.message = message(code: 'default.not.found.message', args: [message(code: 'novoControlValue.label', default: 'NovoControlValue'), params])
             redirect(action: "list")

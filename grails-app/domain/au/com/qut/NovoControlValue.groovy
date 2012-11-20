@@ -7,9 +7,9 @@ class NovoControlValue implements Serializable {
 	String value
 
 	static constraints = {
-		bundleName()
-		valueName()
-		value()
+		bundleName(blank: false)
+		valueName(blank: false)
+		value(blank: false)
 	}
 
 	static mapping = {
@@ -21,13 +21,6 @@ class NovoControlValue implements Serializable {
 			bundleName column:'BUNDLE_NAME'
 			valueName column:'VALUE_NAME'
 			value column:'VALUE'
-		}
-	}
-
-	static NovoControlValue get (String p_bundleName, String p_valueName){
-		NovoControlValue.createCriteria().get{
-			eq('bundleName',p_bundleName)
-			eq('valueName',p_valueName)			
 		}
 	}
 	
